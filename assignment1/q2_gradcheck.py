@@ -15,15 +15,25 @@ def gradcheck_naive(f, x):
     h = 1e-4
 
     # Iterate over all indexes in x
+    # it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
     it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
     while not it.finished:
         ix = it.multi_index
 
         ### try modifying x[ix] with h defined above to compute numerical gradients
-        ### make sure you call random.setstate(rndstate) before calling f(x) each time, this will make it 
+        ### make sure you call random.setstate(rndstate) before calling f(x) each time, this will make it
         ### possible to test cost functions with built in randomness later
         ### YOUR CODE HERE:
-        raise NotImplementedError
+        temp_x = x.astype('float64')
+        temp_x[ix] += h
+        random.setstate(rndstate)
+        c1,_ = f(temp_x)
+        temp_x[ix] -= 2*h
+        random.setstate(rndstate)
+        c2,_ = f(temp_x)
+        numgrad = (c1-c2)/(2*h)
+
+        # raise NotImplementedError
         ### END YOUR CODE
 
         # Compare gradients
@@ -33,7 +43,7 @@ def gradcheck_naive(f, x):
             print "First gradient error found at index %s" % str(ix)
             print "Your gradient: %f \t Numerical gradient: %f" % (grad[ix], numgrad)
             return
-    
+
         it.iternext() # Step to next dimension
 
     print "Gradient check passed!"
@@ -64,4 +74,4 @@ def your_sanity_checks():
 
 if __name__ == "__main__":
     sanity_check()
-    your_sanity_checks()
+    # your_sanity_checks()
